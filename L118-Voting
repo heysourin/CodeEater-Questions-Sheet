@@ -36,20 +36,20 @@ contract Voting {
         emit Voted(msg.sender);
     }
 
-    function getCandidate(uint256 _candidateId)
-        public
-        returns (Candidate memory)
-    {
-        return candidates[_candidateId];
-    }
+    // function getCandidate(uint256 _candidateId)
+    //     public
+    //     returns(Candidate memory)
+    // {
+    //     // return candidates[_candidateId];
+    // }
 
-    function getCandidate(uint256 candidateId)
+    function getCandidate(uint256 _candidateId)
         public
         view
         returns (string memory, uint256)
     {
         require(
-            candidateId >= 0 && candidateId < candidates.length,
+            _candidateId > 0 && _candidateId < candidateId,
             "Invalid candidate ID."
         );
         Candidate memory candidate = candidates[candidateId];
