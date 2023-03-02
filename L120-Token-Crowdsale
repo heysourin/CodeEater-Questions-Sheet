@@ -1,0 +1,47 @@
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+contract Crowdsale {
+    address public admin;
+    IERC20 public token;
+    uint256 public tokenPrice;
+    uint256 public tokensSold;
+
+    event Sold(address buyer, uint256 amount);
+
+    constructor(IERC20 _token, uint256 _tokenPrice) {
+        admin = msg.sender;
+        token = _token;
+        tokenPrice = _tokenPrice;
+    }
+
+    function buyTokens(uint256 _numberOfTokens) public payable {
+        require(
+            msg.value >= _numberOfTokens * tokenPrice,
+            "Ether value sent is not correct"
+        );
+        require(
+            token.balanceOf(address(this)) >= _numberOfTokens,
+            "Insufficient token balance in the contract"
+        );
+
+        uint256 oldTokensSold = tokensSold;
+        tokensSold += _numberOfTokens;
+        require(tokensSold >= oldTokensSold, "Integer overflow occurred");
+
+        token.transfer(msg.sender, _numberOfTokens);
+        emit Sold(msg.sender, _numberOfTokens);
+    }
+
+    function endSale() public {
+        require(msg.sender == admin, "Caller must be the admin");
+        require(
+            token.transfer(admin, token.balanceOf(address(this))),
+            "Token transfer to admin failed"
+        );
+
+        payable(admin).transfer(address(this).balance);
+    }
+}
