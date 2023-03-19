@@ -7,6 +7,7 @@ contract Escrow {
     address public arbiter;
     uint256 public amount;
     bool public disputed;
+    bool public assetChecked;
 
     constructor(
         address _payer,
@@ -26,6 +27,7 @@ contract Escrow {
             "Only the payee or arbiter can release funds"
         );
         require(disputed == false, "Funds have already been released");
+        require(assetChecked == true, "Asset have not been checked yet");
 
         payable(payee).transfer(amount);
     }
@@ -47,5 +49,10 @@ contract Escrow {
         require(disputed, "Transaction is not being disputed");
         payable(payer).transfer(amount);
         disputed = false;
+    }
+
+    function assetCheck() public{
+        require(msg.sender == arbiter || msg.sender == payee);
+        assetChecked = true;
     }
 }
